@@ -1,31 +1,32 @@
-import {Component, OnInit} from 'angular2/core';
-import {HTTP_PROVIDERS} from 'angular2/http';
+import {Component, OnInit} from '@angular/core';
 import {PhotoService} from './photo.service';
-
+import {RouteSegment} from '@angular/router';
 @Component({
     template: `
-        <h1>Album</h1>
-        <div *ngIf="isLoading">
-            <i class="fa fa-spinner fa-spin fa-3x"></i>
-        </div>
-        <div>
-            <img *ngFor="#photo of photos" src="{{ photo.thumbnailUrl }}">
-        </div>
+    <div *ngIf="isLoading">
+        <i class="fa fa-spinner fa-spin fa-3x"></i>
+    </div>
+    <div *ngFor="let photo of photos">        
+        <li><img src="{‌{ photo.thumbnailUrl }}"></li>
+    </div>    
     `,
-    providers: [PhotoService, HTTP_PROVIDERS]
+    providers: [PhotoService]    
 })
-export class AlbumComponent implements OnInit {
+export class AlbumComponent implements OnInit{
     isLoading = true;
     photos;
-
-    constructor(private _photoService: PhotoService){
-    }
-    
-    ngOnInit(){
-        this._photoService.getPhotos(1)
-            .subscribe(photos => {
-                this.isLoading = false;
-                this.photos = photos;
-            });
-    }
+    id: string;   
+    constructor(private _photoService: PhotoService,
+               private _routeSegment: RouteSegment ) {                       
+        
+    }    
+    ngOnInit () {
+        this._photoService.getPhotos(this._routeSegment.getParam('id'))
+            .subscribe(result => { this.photos = result; 
+                                    //console.log(result); 
+                                }
+                        ,error => console.log(error)
+                        ,() => this.isLoading = false
+                        );
+    }   
 }
